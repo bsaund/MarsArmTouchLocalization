@@ -15,6 +15,7 @@
 #include "Common/ConstrainedMoveMessages.h"
 #include "particleFilter.h"
 
+
 struct Status
 {
   Status () : calibrated(false), moveDone(false), touched(false) {}
@@ -353,9 +354,12 @@ static Pose poseNear (double y, double z, double offset,
   normal.Normalize();
 
   Pose point0 = poseAt(y, z, plane);
-  return Pose(point0.x()+normal[0]*offset, point0.y()+normal[1]*offset,
+  return Pose(point0.x()+normal[0]*offset, 
+	      point0.y()+normal[1]*offset,
 	      point0.z()+normal[2]*offset,
-	      point0.rx(), point0.ry(), point0.rz());
+	      point0.rx(), 
+	      point0.ry(), 
+	      point0.rz());
 }
 
 static void moveNearPlane (const particleFilter &pfilter, double dist)
@@ -381,6 +385,8 @@ static void userInput (const char *msg)
   cerr << msg << ": ";
   fgets(buff, 80, stdin);
 }
+
+
 
 int main ()
 { 
@@ -474,7 +480,7 @@ int main ()
   addObservation(pfilter, status.eeEndPose, status.touched);
   moveNearPlane(pfilter, 0.01);
   userInput("Move after 5 observations");
-#if 0
+#if 1
   Pose touch6 = rotate*(touchBase+touchDown);
   touchPoint(touch6, 0.1, false);
   addObservation(pfilter, status.eeEndPose, status.touched);
