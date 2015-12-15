@@ -4,7 +4,7 @@
 
 obj = bld.new_task_gen('cxx', 'cprogram')
 obj.target = 'tactileLocalize'
-obj.source = 'tactileLocalize.cc particleFilter.cpp'
+obj.source = 'tactileLocalize.cc particleFilter.cpp tactileLocalizationUtils.cc'
 obj.uselib = 'IPC PTHREAD M'
 obj.uselib_local = '''
 commonMatrix common constraint

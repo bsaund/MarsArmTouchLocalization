@@ -14,25 +14,10 @@
 #include "Common/ConstrainedMove.xdr.h"
 #include "Common/ConstrainedMoveMessages.h"
 #include "particleFilter.h"
+#include "tactileLocalizationUtils.h"
 
 
-struct Status
-{
-  Status () : calibrated(false), moveDone(false), touched(false) {}
-
-  NDofJointData jointAngles;
-  NDofJointData jointVels;
-  Pose eePose;
-  Pose eeGoalPose;
-  Pose eeEndPose;
-  Pose forceMM;
-  Pose forceNoise;
-  bool calibrated;
-  bool moveDone;
-  bool touched;
-};
-
-static Status status;
+static TLU::Status status;
 
 #if 0
 // L2 norm between the joints
@@ -61,18 +46,6 @@ static RADIANS _pi2_to_pi2(RADIANS rad)
     else
       return (rad);
   }
-}
-
-// L2 norm between the poses
-static double PoseDiff (const Pose &pose1, const Pose &pose2)
-{
-  ColVector diffQuat = quaternionError(matrixToQuaternion(pose1.R()),
-				       matrixToQuaternion(pose2.R()));
-  double sumdiff = (SQ(pose1.x() - pose2.x()) + SQ(pose1.y() - pose2.y()) +
-		    SQ(pose1.z() - pose2.z()) +
-		    SQ(diffQuat[1]) + SQ(diffQuat[2]) + SQ(diffQuat[3]));
-  //cerr << "PoseDiff: " << sqrt(sumdiff) << endl;
-  return sqrt(sumdiff);
 }
 
 static void forceSensorNoiseHnd (MSG_INSTANCE msg, void *callData,
@@ -158,7 +131,7 @@ static bool moveToPose (Pose pose)
   // Wait to get to desired position
   do {
     IPC_listenWait(100);
-  } while (PoseDiff(pose, status.eePose) > 0.01);
+  } while (TLU::PoseDiff(pose, status.eePose) > 0.01);
 }
 
 static bool moveToRelativePose (Pose relPose)
