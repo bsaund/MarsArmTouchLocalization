@@ -19,34 +19,6 @@
 
 static TLU::Status status;
 
-#if 0
-// L2 norm between the joints
-static double NDofJointsDiff (const NDofJointData &ndjd1,
-			      const NDofJointData &ndjd2)
-{
-  double sumdiff = 0;
-  if (ndjd1.numJoints != ndjd2.numJoints) return 1e6;
-  for(int i = 0; i < ndjd1.numJoints; i++) {
-    sumdiff += SQ(ndjd1.data[i] - ndjd2.data[i]);
-  }
-  //cerr << "NDofJointsDiff: " << sqrt(sumdiff) << endl;
-  return sqrt(sumdiff);
-}
-#endif
-
-// -180 to 180, in radians (code in commonMath is weird -- probably wrong, but
-// don't want to change it without checking what other programs are using it
-static RADIANS _pi2_to_pi2(RADIANS rad)
-{
-  for(;;) {
-    if (rad > PI/2)
-      rad -= PI;
-    else if (rad <= -PI/2)
-      rad += PI;
-    else
-      return (rad);
-  }
-}
 
 static void forceSensorNoiseHnd (MSG_INSTANCE msg, void *callData,
 				 void* clientData)
