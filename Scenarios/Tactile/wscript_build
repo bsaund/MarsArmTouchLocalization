@@ -1,0 +1,14 @@
+#########################################################
+# Build a test program for tactile localization
+#########################################################
+
+obj = bld.new_task_gen('cxx', 'cprogram')
+obj.target = 'tactileLocalize'
+obj.source = 'tactileLocalize.cc particleFilter.cpp'
+obj.uselib = 'IPC PTHREAD M'
+obj.uselib_local = '''
+commonMatrix common constraint
+CC_utils coordinatedControllerTypes
+'''
+#obj.cppflags = ['-g', '-O3', '-std=gnu+11']
+obj.cppflags = ['-g', '-std=gnu++11']
