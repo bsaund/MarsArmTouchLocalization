@@ -11,6 +11,8 @@
 
 int main()
 {
+  const int numTrials = 10;
+  double touchDist[numTrials];
   TLU::ipcInit();
 
   Pose rotate(0, 0, 0, 0, 0, M_PI/4);
@@ -23,13 +25,19 @@ int main()
   Pose touchBase(0.5, -0.1, 1.2, 0, M_PI/2, 0);
   bool touched1, touched2, touched3;
 
-  Pose touch1 = rotate*touchBase;
-  TLU::TouchStatus tstatus = TLU::touchPoint(touch1, 0.1, true);
-
-  Pose touchedPose1 = tstatus.touchPose;
-
-  Pose BackOff1 = touchedPose1 * Pose(0,0,-.01,0,0,0);
+  Pose startPose = rotate*touchBase; 
   
-  cerr << "Suggesting: " << BackOff1 << endl;
-  TLU::guardedMoveToPose(BackOff1);
+  for(int i=0; i < numTrials; i++){
+    TLU::TouchStatus tstatus = TLU::touchPoint(startPose, 0.1, (i==0));
+    touchDist[i] = (startPose.inverse() * tstatus.touchPose).z();
+  }
+
+
+
+  
+  cerr << "Touches" << endl;
+  for(int i = 0; i < numTrials; i++){
+    cerr << touchDist[i] << endl;
+  }
+  //  TLU::guardedMoveToPose(BackOff1);
 }
