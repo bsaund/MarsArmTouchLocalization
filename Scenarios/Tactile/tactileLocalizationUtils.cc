@@ -167,7 +167,8 @@ bool TLU::guardedMoveToPose (Pose pose)
 
 
 /* 
- * Moves from startPose forward by forwardMove, stopping if the sensor touches something
+ * Moves from startPose forward (in the End Effector Z direction)
+ * by forwardMove, stopping if the sensor touches something
  * Optionally calibrate the force sensor
  * Returns a struct of the location of the touch point, and a boolean if contact was made
  */
