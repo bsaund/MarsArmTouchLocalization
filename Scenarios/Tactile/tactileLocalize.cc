@@ -17,9 +17,6 @@
 #include "tactileLocalizationUtils.h"
 
 
-//static TLU::Status status;
-
-
 static void addObservation (particleFilter &pfilter, Pose pose, bool touched)
 {
   if (touched) {

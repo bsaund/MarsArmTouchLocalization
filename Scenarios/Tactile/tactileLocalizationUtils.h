@@ -43,6 +43,8 @@ namespace TLU{
 
   bool moveToPose (Pose pose);
 
+  void calibrateForceSensor();
+
 }
 
 

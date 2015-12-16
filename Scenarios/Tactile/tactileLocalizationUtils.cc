@@ -164,6 +164,11 @@ bool TLU::guardedMoveToPose (Pose pose)
   IPC_publishData(REMOVE_CONSTRAINTS_MSG, &hard);
 }
 
+/* 
+ * Moves from startPose forward by forwardMove, stopping if the sensor touches something
+ * Optionally calibrate the force sensor
+ * Returns a struct of the location of the touch point, and a boolean if contact was made
+ */
 TLU::TouchStatus TLU::touchPoint (Pose startPose, double forwardMove, bool calibrate)
 {
   // Move to startPose
@@ -172,14 +177,7 @@ TLU::TouchStatus TLU::touchPoint (Pose startPose, double forwardMove, bool calib
 
   // Calibrate the force sensor
   if (calibrate) {
-    sleep(1); // Let things settle down first
-    int tmp = 1; // Dummy
-    status.calibrated = false;
-    IPC_publishData(FORCE_RECALIBRATION_MSG, &tmp);
-    do {
-      IPC_listenWait(100);
-    } while (!status.calibrated);
-    cerr << "Force noise: " << status.forceNoise << endl;
+    TLU::calibrateForceSensor();
   }
 
   // Move in guarded-move velocity mode,
@@ -237,6 +235,20 @@ TLU::TouchStatus TLU::touchPoint (Pose startPose, double forwardMove, bool calib
   return touchStatus;
 }
 
+
+void TLU::calibrateForceSensor()
+{
+    sleep(1); // Let things settle down first
+    int tmp = 1; // Dummy
+    status.calibrated = false;
+    IPC_publishData(FORCE_RECALIBRATION_MSG, &tmp);
+    do {
+      IPC_listenWait(100);
+    } while (!status.calibrated);
+    cerr << "Force noise: " << status.forceNoise << endl;
+}
+
+
 void TLU::updateTouchStats (const Pose &pose, int num,
 			      ColVector &mean, ColVector &std)
 {
@@ -259,7 +271,10 @@ void TLU::updateTouchStats (const Pose &pose, int num,
 
 
 
-// L2 norm between the poses
+/*
+ *  L2 norm between the poses
+ *  If this is near zero then the two poses are the same
+ */
 double TLU::PoseDiff (const Pose &pose1, const Pose &pose2)
 {
   ColVector diffQuat = quaternionError(matrixToQuaternion(pose1.R()),
