@@ -1,7 +1,7 @@
 #ifndef TACTILCE_LOCALIZATION_UTILS
 #define TACTILCE_LOCALIZATION_UTILS
 
-
+//Touch Localization Utils
 namespace TLU{
   // L2 norm between the poses
   double PoseDiff (const Pose &pose1, const Pose &pose2);
@@ -23,8 +23,25 @@ namespace TLU{
     bool touched;
   };
 
+  struct TouchStatus
+  {
+    TouchStatus () : touched(false) {}
+    bool touched;
+    Pose touchPose;
+  };
 
+  void ipcInit();
 
+  void updateTouchStats (const Pose &pose, int num,
+			 ColVector &mean, ColVector &std);
+
+  TouchStatus touchPoint (Pose startPose, double forwardMove, bool calibrate);
+
+  bool guardedMoveToPose (Pose pose);
+
+  bool moveToRelativePose (Pose relPose);
+
+  bool moveToPose (Pose pose);
 
 }
 
