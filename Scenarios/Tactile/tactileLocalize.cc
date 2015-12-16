@@ -6,13 +6,8 @@
  *****************************************************************/
 
 #include <unistd.h>
-#include <ipc/ipc.h>
-#include "Components/Controllers/CoordinatedController/coordinatedController-ipc.h"
 #include "Components/Controllers/CoordinatedController/utils.h"
 #include "Common/commonMath.h"
-#include "Common/Constraint.xdr.h"
-#include "Common/ConstrainedMove.xdr.h"
-#include "Common/ConstrainedMoveMessages.h"
 #include "particleFilter.h"
 #include "tactileLocalizationUtils.h"
 
@@ -101,13 +96,6 @@ static void moveNearPlane (const particleFilter &pfilter, double dist)
 #endif
 }
 
-static void userInput (const char *msg)
-{
-  char buff[80];
-  cerr << msg << ": ";
-  fgets(buff, 80, stdin);
-}
-
 
 
 int main ()
@@ -174,7 +162,7 @@ int main ()
 
 #if 0
   moveNearPlane(pfilter, 0.01);
-  userInput("Initial move");
+  TLU::userInput("Initial move");
 #endif
   addObservation(pfilter, touch1, touched1);
   addObservation(pfilter, touch2, touched2);
@@ -183,7 +171,7 @@ int main ()
   TLU::moveToPose(rotate*(touchBase+touchUp+touchSide));
 #if 0
   moveNearPlane(pfilter, 0.01);
-  userInput("Move after 3 observations");
+  TLU::userInput("Move after 3 observations");
 #endif
   Pose touch4 = rotate*(touchBase+touchSide);
 #ifndef TEST_PF
@@ -194,7 +182,7 @@ int main ()
   addObservation(pfilter, tstatus.touchPose, tstatus.touched);
 #if 0
   moveNearPlane(pfilter, 0.01);
-  userInput("Move after 4 observations");
+  TLU::userInput("Move after 4 observations");
 #endif
   Pose touch5 = rotate*(touchBase+touchMiddle);
 #ifndef TEST_PF  
@@ -204,19 +192,19 @@ int main ()
 #endif
   addObservation(pfilter, tstatus.touchPose, tstatus.touched);
   moveNearPlane(pfilter, 0.01);
-  userInput("Move after 5 observations");
+  TLU::userInput("Move after 5 observations");
 #if 1
   Pose touch6 = rotate*(touchBase+touchDown);
   tstatus = TLU::touchPoint(touch6, 0.1, false);
   addObservation(pfilter, tstatus.touchPose, tstatus.touched);
   moveNearPlane(pfilter, 0.01);
-  userInput("Move after 6 observations");
+  TLU::userInput("Move after 6 observations");
 
   Pose touch7 = rotate*(touchBase+touchDown+touchSide);
   tstatus = TLU::touchPoint(touch7, 0.1, false);
   addObservation(pfilter, tstatus.touchPose, tstatus.touched);
   moveNearPlane(pfilter, 0.01);
-  userInput("Move after 7 observations");
+  TLU::userInput("Move after 7 observations");
 #endif
 #endif
 }

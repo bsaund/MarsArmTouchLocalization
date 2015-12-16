@@ -132,6 +132,7 @@ bool TLU::moveToRelativePose (Pose relPose)
   sleep(1);
 }
 
+
 bool TLU::guardedMoveToPose (Pose pose)
 {
   // Activate arm
@@ -163,6 +164,7 @@ bool TLU::guardedMoveToPose (Pose pose)
   ConstraintsType hard = HARD_CONSTRAINTS;
   IPC_publishData(REMOVE_CONSTRAINTS_MSG, &hard);
 }
+
 
 /* 
  * Moves from startPose forward by forwardMove, stopping if the sensor touches something
@@ -286,4 +288,14 @@ double TLU::PoseDiff (const Pose &pose1, const Pose &pose2)
   return sqrt(sumdiff);
 }
 
+/*
+ * Prompts user for input.
+ * Currently doesn't do anything with it
+ */
+void TLU::userInput (const char *msg)
+{
+  char buff[80];
+  cerr << msg << ": ";
+  fgets(buff, 80, stdin);
+}
 

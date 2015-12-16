@@ -45,6 +45,7 @@ namespace TLU{
 
   void calibrateForceSensor();
 
+  void userInput(const char *msg);
 }
 
 
