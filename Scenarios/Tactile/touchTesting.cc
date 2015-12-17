@@ -11,7 +11,7 @@
 
 int main()
 {
-  const int numTrials = 10;
+  const int numTrials = 1;
   double touchDist[numTrials];
   TLU::ipcInit();
 
@@ -28,7 +28,7 @@ int main()
   Pose startPose = rotate*touchBase; 
   
   for(int i=0; i < numTrials; i++){
-    TLU::TouchStatus tstatus = TLU::touchPoint(startPose, 0.1, (i==0));
+    TLU::TouchStatus tstatus = TLU::touchPoint(startPose, 0.1, (i==0), .005);
     touchDist[i] = (startPose.inverse() * tstatus.touchPose).z();
   }
 
