@@ -166,13 +166,19 @@ bool TLU::guardedMoveToPose (Pose pose)
 }
 
 
+TLU::TouchStatus TLU::touchPoint (Pose startPose, double forwardMove, bool calibrate)
+{
+  return TLU::touchPoint(startPose, forwardMove, calibrate, 0.01);
+}
+
 /* 
  * Moves from startPose forward (in the End Effector Z direction)
  * by forwardMove, stopping if the sensor touches something
  * Optionally calibrate the force sensor
  * Returns a struct of the location of the touch point, and a boolean if contact was made
  */
-TLU::TouchStatus TLU::touchPoint (Pose startPose, double forwardMove, bool calibrate)
+TLU::TouchStatus TLU::touchPoint (Pose startPose, double forwardMove, bool calibrate, 
+				  double touchVelocity)
 {
   // Move to startPose
   cerr << "Move to start pose: " << startPose << endl;
@@ -183,9 +189,27 @@ TLU::TouchStatus TLU::touchPoint (Pose startPose, double forwardMove, bool calib
     TLU::calibrateForceSensor();
   }
 
+  TLU::TouchStatus touchStatus = probeForward(forwardMove, touchVelocity);
+
+  // Return to start position
+  if (status.touched) { // If touched, back straight out a bit, first
+    cerr << "Back up: " << endl;
+    moveToRelativePose(Pose(0, 0, -0.01, 0, 0, 0));
+  }
+
+  cerr << "Return to start pose from: " << status.eePose << endl;
+  moveToPose(startPose);
+  return touchStatus;
+}
+
+/*
+ * Probes forward (in the Z direction) up to maxDist forward at rate of speed
+ */
+TLU::TouchStatus TLU::probeForward(double maxDist, double speed)
+{
   // Move in guarded-move velocity mode,
   //  but stop if travelled too far without touching
-  Pose eeRelPose(0, 0, forwardMove, 0, 0, 0);
+  Pose eeRelPose(0, 0, maxDist, 0, 0, 0);
   Pose goalPose = status.eePose * eeRelPose;
   cerr << status.eePose << endl << eeRelPose << endl << goalPose << endl;
 
@@ -197,14 +221,14 @@ TLU::TouchStatus TLU::touchPoint (Pose startPose, double forwardMove, bool calib
   //cerr << forceConstraint << endl;
   // Set up pose constraint, further than the estimated goal pose
   Constraint poseConstraint(PoseConstraint, SpecifiedFrameConstraint,
-			    (char *)"XYZ", forwardMove, LessConstraint,
+			    (char *)"XYZ", maxDist, LessConstraint,
 			    true, 0.0, status.eePose);
   constraintList.addConstraint(poseConstraint);
   //cerr << poseConstraint << endl;
   IPC_publishData(SET_HARD_CONSTRAINTS_MSG, &constraintList);
 
   cerr << "Guarded move: " << endl;
-  POSE_6DOF_TYPE eeVels(0, 0, 0.01, 0, 0, 0);
+  POSE_6DOF_TYPE eeVels(0, 0, speed, 0, 0, 0);
   EE_DATA_TYPE eeData(NULL, &eeVels);
   CC_EECommand eeCmd(CC_EE_VELOCITY, eeData);
   IPC_publishData(CC_EE_CMD, &eeCmd);
@@ -220,24 +244,16 @@ TLU::TouchStatus TLU::touchPoint (Pose startPose, double forwardMove, bool calib
     cerr << "Stopped without touching: " << status.eeEndPose << endl;
   }
 
+  ConstraintsType hard = HARD_CONSTRAINTS;
+  IPC_publishData(REMOVE_CONSTRAINTS_MSG, &hard);
+  
   TLU::TouchStatus touchStatus;
   touchStatus.touched = status.touched;
   touchStatus.touchPose = status.eeEndPose;
 
-  ConstraintsType hard = HARD_CONSTRAINTS;
-  IPC_publishData(REMOVE_CONSTRAINTS_MSG, &hard);
-
-  // Return to start position
-  if (status.touched) { // If touched, back straight out a bit, first
-    cerr << "Back up: " << endl;
-    moveToRelativePose(Pose(0, 0, -0.01, 0, 0, 0));
-  }
-
-  cerr << "Return to start pose from: " << status.eePose << endl;
-  moveToPose(startPose);
+  
   return touchStatus;
 }
-
 
 void TLU::calibrateForceSensor()
 {

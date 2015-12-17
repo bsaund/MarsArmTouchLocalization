@@ -36,6 +36,10 @@ namespace TLU{
 			 ColVector &mean, ColVector &std);
 
   TouchStatus touchPoint (Pose startPose, double forwardMove, bool calibrate);
+  TouchStatus touchPoint (Pose startPose, double forwardMove, bool calibrate, 
+			  double touchVelocity);
+
+  TouchStatus probeForward(double maxDist, double speed);
 
   bool guardedMoveToPose (Pose pose);
 
