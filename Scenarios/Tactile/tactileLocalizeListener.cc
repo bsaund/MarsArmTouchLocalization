@@ -28,6 +28,8 @@ static TLU::TouchStatus touchPoint(Pose startPose, bool calibrate)
   return TLU::touchPoint(startPose, 0.1, calibrate, 0.01, true);
 }
 
+static bool newPose;
+static Pose touchPose;
 
 static void touchHnd(MSG_INSTANCE msg, void *callData,
 			    void* clientData)
@@ -36,23 +38,40 @@ static void touchHnd(MSG_INSTANCE msg, void *callData,
   Pose startPose(l->x, l->y, l->z, l->r, l->p, l->yaw);
   std::cout << "xyz: " << l->x << ", " << l->y << ", " << l->z << std::endl;
   std::cout << "rpy: " << l->r << ", " << l->p << ", " << l->yaw << std::endl;
-  touchPoint(startPose, true);
+  // touchPoint(startPose, true);
+  touchPose = startPose;
   std::cout << "Freeing data" << std::endl;
+  newPose = true;
   IPC_freeData (IPC_msgInstanceFormatter(msg), callData);
 }
+
+
 
 int main ()
 { 
   TLU::ipcInit();
   IPC_subscribeData(TOUCH_LOCATION_MSG, touchHnd, NULL);
-
+  newPose = false;
 
 
   while(true){
-    IPC_listenWait(100);
+
+    do {
+      IPC_listenWait(100);
+      // cerr << "Waiting for Command" << endl;
+    } while (!newPose);
+    newPose = false;
+    TLU::TouchStatus tstatus;
+    tstatus = touchPoint(touchPose, true);
+    addObservationRos(tstatus.touchPose);
   }
 
   
+
+
+
+// -------------------END----------------------------------
+
   Pose rotate(0, 0, 0, 0, 0, M_PI/4);
 
   double dtouch = 0.05;
