@@ -28,12 +28,15 @@ int main()
   Pose startPose = rotate*touchBase; 
   
   for(int i=0; i < numTrials; i++){
-    TLU::TouchStatus tstatus = TLU::touchPoint(startPose, 0.1, (i==0), .005);
+    TLU::TouchStatus tstatus = TLU::touchPoint(startPose, 0.1, (i==0), .01, true);
     touchDist[i] = (startPose.inverse() * tstatus.touchPose).z();
+    Pose BackOff1 = tstatus.touchPose * Pose(0,0,-.001,0,0,0);
+    TLU::guardedMoveToPose(BackOff1);
+    TLU::userInput("Continue?");
   }
 
-
-
+ 
+  TLU::guardedMoveToPose(startPose);
   
   cerr << "Touches" << endl;
   for(int i = 0; i < numTrials; i++){

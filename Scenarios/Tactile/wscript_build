@@ -13,6 +13,16 @@ CC_utils coordinatedControllerTypes
 #obj.cppflags = ['-g', '-O3', '-std=gnu+11']
 obj.cppflags = ['-g', '-std=gnu++11']
 
+tac = bld.new_task_gen('cxx', 'cprogram')
+tac.target = 'tactileLocalizeListener'
+tac.source = 'tactileLocalizeListener.cc tactileLocalizationUtils.cc'
+tac.uselib = 'IPC PTHREAD M'
+tac.uselib_local = '''
+commonMatrix common constraint
+CC_utils coordinatedControllerTypes
+'''
+tac.cppflags = ['-g', '-std=gnu++11']
+
 touchTest = bld.new_task_gen('cxx', 'cprogram')
 touchTest.target = 'touchTesting'
 touchTest.source = 'touchTesting.cc tactileLocalizationUtils.cc'

@@ -9,8 +9,9 @@
 #include "Components/Controllers/CoordinatedController/utils.h"
 #include "Common/commonMath.h"
 #include "particleFilter.h"
+#include <ipc/ipc.h>
 #include "tactileLocalizationUtils.h"
-
+#include "tactileLocalizeMsg.h"
 
 static void addObservation (particleFilter &pfilter, Pose pose, bool touched)
 {
@@ -20,11 +21,28 @@ static void addObservation (particleFilter &pfilter, Pose pose, bool touched)
     pfilter.addObservation(obs);
     particleFilter::cspace X_est[2];
     pfilter.estimatedDistribution(X_est);
+    TouchObservation obsMsg = {obs[0], obs[1], obs[2]};
+    IPC_publishData("TestTopicMSG", &obsMsg);
+
     cout << "est: " << X_est[0][0] << ' ' << X_est[0][1] << ' ' << X_est[0][2]
 	 << " (" << X_est[1][0] << ")" << endl;
   } else {
     cerr << "NEED TO DO SOMETHING WHEN TARGET IS MISSED\n";
   }
+}
+
+static void addObservationRos(Pose pose)
+{
+  double obs[3] = {pose.x(), pose.y(), pose.z()};
+  cout << "obs: " << obs[0] << ' ' << obs[1] << ' ' << obs[2] << endl;
+  // pfilter.addObservation(obs);
+  // particleFilter::cspace X_est[2];
+  // pfilter.estimatedDistribution(X_est);
+  TouchObservation obsMsg = {obs[0], obs[1], obs[2]};
+  IPC_publishData("TestTopicMSG", &obsMsg);
+
+  // cout << "est: " << X_est[0][0] << ' ' << X_est[0][1] << ' ' << X_est[0][2]
+  // 	 << " (" << X_est[1][0] << ")" << endl;
 }
 
 static void computeInitialDistribution (particleFilter::cspace binit[2],
@@ -98,21 +116,22 @@ static void moveNearPlane (const particleFilter &pfilter, double dist)
 
 
 
+static TLU::TouchStatus touchPoint(Pose startPose, bool calibrate)
+{
+  return TLU::touchPoint(startPose, 0.1, calibrate, 0.01, true);
+}
+
+
 int main ()
 { 
   TLU::ipcInit();
 
-
-#if 0
-  /*  Pose touch1(0.404, 0.303, 1.267, 0.0, M_PI/2, M_PI/4);
-  ColVector mean(6), std(6);
-  int num = 10;
-  for (int i=1; i<=num; i++) {
-    touchPoint(touch1, 0.1, (i==1)); // Calibrate force sensor just first time
-    updateTouchStats(status.eeEndPose, i, mean, std);
-    cerr << "Mean: " << mean << "Std: " << std;
-    }*/
-#else
+  // addObservationTest();
+  // int b >> std::cin;
+  // int b;
+  // std::cin >> b;
+  // return 0;
+  
   Pose rotate(0, 0, 0, 0, 0, M_PI/4);
 
   double dtouch = 0.05;
@@ -123,88 +142,74 @@ int main ()
   Pose touchBase(0.5, -0.1, 1.2, 0, M_PI/2, 0);
   bool touched1, touched2, touched3;
 
-  particleFilter pfilter(1000);
+  // particleFilter pfilter(1000);
 
   Pose touch1 = rotate*touchBase;
+  std::cout << "xyz: " << touch1.x() << ", " << touch1.y() << ", " << touch1.z() << std::endl;
+  std::cout << "rpy: " << touch1.rx() << ", " << touch1.ry() << ", " << touch1.rz() << std::endl;
 
   TLU::TouchStatus tstatus;
-//#define TEST_PF
-#ifndef TEST_PF
-  tstatus = TLU::touchPoint(touch1, 0.1, true);
+
+
+  tstatus = touchPoint(touch1, true);
   touch1 = tstatus.touchPose;
   touched1 = tstatus.touched;
-#else
-  touched1 = true;
-#endif
+
+  addObservationRos(touch1);
 
   Pose touch2 = rotate*(touchBase+touchUp);
-#ifndef TEST_PF
-  tstatus = TLU::touchPoint(touch2, 0.1, false);
+
+  tstatus = touchPoint(touch2, false);
   touch2 = tstatus.touchPose;
   touched2 = tstatus.touched;
-#else
-  touched2 = true;
-#endif
+  addObservationRos(touch2);
 
   Pose touch3 = rotate*(touchBase+touchUp+touchSide);
-#ifndef TEST_PF
-  tstatus = TLU::touchPoint(touch3, 0.1, false);
+
+  tstatus = touchPoint(touch3, false);
   touch3 = tstatus.touchPose;
   touched3 = tstatus.touched;
-#else
-  touched3 = true;
-#endif
 
-  particleFilter::cspace binit[2];
+  addObservationRos(touch3);
 
-  computeInitialDistribution(binit, touch1, touch2, touch3);
-  pfilter.setDistribution(binit);
+  // particleFilter::cspace binit[2];
 
-#if 0
-  moveNearPlane(pfilter, 0.01);
-  TLU::userInput("Initial move");
-#endif
-  addObservation(pfilter, touch1, touched1);
-  addObservation(pfilter, touch2, touched2);
-  addObservation(pfilter, touch3, touched3);
+  // computeInitialDistribution(binit, touch1, touch2, touch3);
+  // pfilter.setDistribution(binit);
+
+  // addObservation(pfilter, touch1, touched1);
+  // addObservation(pfilter, touch2, touched2);
+  // addObservation(pfilter, touch3, touched3);
 
   TLU::moveToPose(rotate*(touchBase+touchUp+touchSide));
-#if 0
-  moveNearPlane(pfilter, 0.01);
-  TLU::userInput("Move after 3 observations");
-#endif
   Pose touch4 = rotate*(touchBase+touchSide);
-#ifndef TEST_PF
-  tstatus = TLU::touchPoint(touch4, 0.1, false);
-#else
-  tstatus.touchPose = touch4; tstatus.touched = true;
-#endif
-  addObservation(pfilter, tstatus.touchPose, tstatus.touched);
-#if 0
-  moveNearPlane(pfilter, 0.01);
-  TLU::userInput("Move after 4 observations");
-#endif
+
+  tstatus = touchPoint(touch4, false);
+  addObservationRos(touch4);
+
+  // addObservation(pfilter, tstatus.touchPose, tstatus.touched);
   Pose touch5 = rotate*(touchBase+touchMiddle);
-#ifndef TEST_PF  
-  tstatus = TLU::touchPoint(touch5, 0.1, false);
-#else
-  tstatus.touchPose = touch5; tstatus.touched = true;
-#endif
-  addObservation(pfilter, tstatus.touchPose, tstatus.touched);
-  moveNearPlane(pfilter, 0.01);
+
+  tstatus = touchPoint(touch5, false);
+  addObservationRos(touch5);
+
+  // addObservation(pfilter, tstatus.touchPose, tstatus.touched);
+  // moveNearPlane(pfilter, 0.005);
   TLU::userInput("Move after 5 observations");
-#if 1
+
   Pose touch6 = rotate*(touchBase+touchDown);
-  tstatus = TLU::touchPoint(touch6, 0.1, false);
-  addObservation(pfilter, tstatus.touchPose, tstatus.touched);
-  moveNearPlane(pfilter, 0.01);
+  tstatus = touchPoint(touch6, false);
+  addObservationRos(touch6);
+  // addObservation(pfilter, tstatus.touchPose, tstatus.touched);
+  // moveNearPlane(pfilter, 0.01);
   TLU::userInput("Move after 6 observations");
 
   Pose touch7 = rotate*(touchBase+touchDown+touchSide);
-  tstatus = TLU::touchPoint(touch7, 0.1, false);
-  addObservation(pfilter, tstatus.touchPose, tstatus.touched);
-  moveNearPlane(pfilter, 0.01);
+  tstatus = touchPoint(touch7, false);
+  addObservationRos(touch7);
+  // addObservation(pfilter, tstatus.touchPose, tstatus.touched);
+  // moveNearPlane(pfilter, 0.01);
   TLU::userInput("Move after 7 observations");
-#endif
-#endif
+
+
 }

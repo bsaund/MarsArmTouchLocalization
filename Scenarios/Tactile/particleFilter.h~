@@ -9,11 +9,11 @@ class particleFilter
 
   particleFilter (int n_particles,
 		  double Xstd_ob=0.0001, double Xstd_tran=0.0025,
-		  double Xstd_scatter=0.0001, double R=0.01);
+		  double Xstd_scatter=0.0001, double R=0.0005);
 
   void setDistribution (cspace dist[2]);
   void addObservation (double obs[3]);
-  void estimatedDistribution (cspace x_est[2]) { 
+  void estimatedDistribution (cspace x_est[2]) const { 
     memcpy(x_est, X_est, 2*sizeof(cspace));
   }
 

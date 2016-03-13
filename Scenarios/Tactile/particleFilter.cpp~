@@ -32,7 +32,8 @@ particleFilter::particleFilter (int n_particles,
 void particleFilter::setDistribution (cspace dist[2])
 {
   memcpy(b_Xprior, dist, 2*sizeof(cspace));
-  memcpy(b_Xpre, dist, 2*sizeof(cspace));
+  memcpy(b_Xpre,   dist, 2*sizeof(cspace));
+  memcpy(X_est,    dist, 2*sizeof(cspace));
 }
 
 void particleFilter::addObservation (double obs[3])

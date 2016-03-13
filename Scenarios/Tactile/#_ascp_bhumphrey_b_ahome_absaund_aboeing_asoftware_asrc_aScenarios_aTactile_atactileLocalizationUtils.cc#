@@ -22,8 +22,7 @@ static void forceSensorNoiseHnd (MSG_INSTANCE msg, void *callData,
   POSE_6DOF_TYPE forceSensorNoise = *((POSE_6DOF_TYPE*) callData);
   status.forceNoise = Pose(forceSensorNoise);
   status.calibrated = true;
-  
-  std::cout << "Force noise Handled" << std::endl;
+  // std::cout << "Force noise Handle" << std::endl;
   IPC_freeData (IPC_msgInstanceFormatter(msg), callData);
 }
 
@@ -90,7 +89,6 @@ static void constrainedMoveHnd (MSG_INSTANCE msg, void *callData,
 void TLU::ipcInit ()
 {
   IPC_connect("tactileLocalize");
-  IPC_setCapacity(5);
   IPC_defineMsg(TOUCH_OBSERVATION_MSG, IPC_VARIABLE_LENGTH, TOUCH_OBSERVATION_FORM);
   IPC_defineMsg(TOUCH_LOCATION_MSG, IPC_VARIABLE_LENGTH, TOUCH_LOCATION_FORM);
   IPC_subscribeData(FORCE_SENSOR_NOISE_MSG, forceSensorNoiseHnd, NULL);
@@ -122,7 +120,6 @@ bool TLU::moveToPose (Pose pose)
   // Wait to get to desired position
   do {
     IPC_listenWait(100);
-    std::cout << "Moving to pose " << std::endl;
   } while (TLU::PoseDiff(pose, status.eePose) > 0.01);
 }
 
@@ -197,10 +194,9 @@ TLU::TouchStatus TLU::touchPoint (Pose startPose, double forwardMove, bool calib
 
   // Calibrate the force sensor
   if (calibrate) {
-    cerr << "Calibrating force sensor" << endl;
     TLU::calibrateForceSensor();
   }
-  cerr << "Probing forward" << endl;
+
   TLU::TouchStatus touchStatus = probeForward(forwardMove, touchVelocity);
 
   // Return to start position
@@ -286,7 +282,6 @@ void TLU::calibrateForceSensor()
     IPC_publishData(FORCE_RECALIBRATION_MSG, &tmp);
     do {
       IPC_listenWait(100);
-      cerr << "Waiting for calibration" << endl;
     } while (!status.calibrated);
     cerr << "Force noise: " << status.forceNoise << endl;
 }
