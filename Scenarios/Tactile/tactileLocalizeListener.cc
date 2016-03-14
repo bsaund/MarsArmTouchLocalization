@@ -52,7 +52,7 @@ int main ()
   TLU::ipcInit();
   IPC_subscribeData(TOUCH_LOCATION_MSG, touchHnd, NULL);
   newPose = false;
-
+  bool calibrate = true;
 
   while(true){
 
@@ -62,7 +62,8 @@ int main ()
     } while (!newPose);
     newPose = false;
     TLU::TouchStatus tstatus;
-    tstatus = touchPoint(touchPose, true);
+    tstatus = touchPoint(touchPose, calibrate);
+    calibrate = false;
     addObservationRos(tstatus.touchPose);
   }
 
