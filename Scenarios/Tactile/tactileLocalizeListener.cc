@@ -67,7 +67,7 @@ int main ()
     addObservationRos(tstatus.touchPose);
   }
 
-  
+  return 1;
 
 
 
