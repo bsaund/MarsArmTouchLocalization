@@ -7,8 +7,11 @@ typedef struct {
   double x;
   double y;
   double z;
+  double roll;
+  double pitch;
+  double yaw;
 } TouchObservation;
-#define TOUCH_OBSERVATION_FORM "{double, double, double}"
+#define TOUCH_OBSERVATION_FORM "{double, double, double, double, double, double}"
 #define TOUCH_OBSERVATION_MSG "TOUCH_OBSERVATION"
 
 

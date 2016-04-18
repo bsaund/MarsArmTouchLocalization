@@ -73,72 +73,72 @@ int main ()
 
 // -------------------END----------------------------------
 
-  Pose rotate(0, 0, 0, 0, 0, M_PI/4);
+  // Pose rotate(0, 0, 0, 0, 0, M_PI/4);
 
-  double dtouch = 0.05;
-  Pose touchUp(0, 0, dtouch, 0, 0, 0);
-  Pose touchDown(0, 0, -dtouch, 0, 0, 0);
-  Pose touchSide(0, dtouch, 0, 0, 0, 0);
-  Pose touchMiddle(0, dtouch/2, dtouch/2, 0, 0, 0);
-  Pose touchBase(0.5, -0.1, 1.2, 0, M_PI/2, 0);
-  bool touched1, touched2, touched3;
+  // double dtouch = 0.05;
+  // Pose touchUp(0, 0, dtouch, 0, 0, 0);
+  // Pose touchDown(0, 0, -dtouch, 0, 0, 0);
+  // Pose touchSide(0, dtouch, 0, 0, 0, 0);
+  // Pose touchMiddle(0, dtouch/2, dtouch/2, 0, 0, 0);
+  // Pose touchBase(0.5, -0.1, 1.2, 0, M_PI/2, 0);
+  // bool touched1, touched2, touched3;
 
-  Pose touch1 = rotate*touchBase;
+  // Pose touch1 = rotate*touchBase;
 
-  TLU::TouchStatus tstatus;
-
-
-  tstatus = touchPoint(touch1, true);
-  touch1 = tstatus.touchPose;
-  touched1 = tstatus.touched;
-
-  addObservationRos(touch1);
-
-  Pose touch2 = rotate*(touchBase+touchUp);
-
-  tstatus = touchPoint(touch2, false);
-  touch2 = tstatus.touchPose;
-  touched2 = tstatus.touched;
-  addObservationRos(touch2);
-
-  Pose touch3 = rotate*(touchBase+touchUp+touchSide);
-
-  tstatus = touchPoint(touch3, false);
-  touch3 = tstatus.touchPose;
-  touched3 = tstatus.touched;
-
-  addObservationRos(touch3);
+  // TLU::TouchStatus tstatus;
 
 
-  TLU::moveToPose(rotate*(touchBase+touchUp+touchSide));
-  Pose touch4 = rotate*(touchBase+touchSide);
+  // tstatus = touchPoint(touch1, true);
+  // touch1 = tstatus.touchPose;
+  // touched1 = tstatus.touched;
 
-  tstatus = touchPoint(touch4, false);
-  addObservationRos(touch4);
+  // addObservationRos(touch1);
+
+  // Pose touch2 = rotate*(touchBase+touchUp);
+
+  // tstatus = touchPoint(touch2, false);
+  // touch2 = tstatus.touchPose;
+  // touched2 = tstatus.touched;
+  // addObservationRos(touch2);
+
+  // Pose touch3 = rotate*(touchBase+touchUp+touchSide);
+
+  // tstatus = touchPoint(touch3, false);
+  // touch3 = tstatus.touchPose;
+  // touched3 = tstatus.touched;
+
+  // addObservationRos(touch3);
 
 
-  Pose touch5 = rotate*(touchBase+touchMiddle);
+  // TLU::moveToPose(rotate*(touchBase+touchUp+touchSide));
+  // Pose touch4 = rotate*(touchBase+touchSide);
 
-  tstatus = touchPoint(touch5, false);
-  addObservationRos(touch5);
+  // tstatus = touchPoint(touch4, false);
+  // addObservationRos(touch4);
 
-  // addObservation(pfilter, tstatus.touchPose, tstatus.touched);
-  // moveNearPlane(pfilter, 0.005);
-  TLU::userInput("Move after 5 observations");
 
-  Pose touch6 = rotate*(touchBase+touchDown);
-  tstatus = touchPoint(touch6, false);
-  addObservationRos(touch6);
-  // addObservation(pfilter, tstatus.touchPose, tstatus.touched);
-  // moveNearPlane(pfilter, 0.01);
-  TLU::userInput("Move after 6 observations");
+  // Pose touch5 = rotate*(touchBase+touchMiddle);
 
-  Pose touch7 = rotate*(touchBase+touchDown+touchSide);
-  tstatus = touchPoint(touch7, false);
-  addObservationRos(touch7);
-  // addObservation(pfilter, tstatus.touchPose, tstatus.touched);
-  // moveNearPlane(pfilter, 0.01);
-  TLU::userInput("Move after 7 observations");
+  // tstatus = touchPoint(touch5, false);
+  // addObservationRos(touch5);
+
+  // // addObservation(pfilter, tstatus.touchPose, tstatus.touched);
+  // // moveNearPlane(pfilter, 0.005);
+  // TLU::userInput("Move after 5 observations");
+
+  // Pose touch6 = rotate*(touchBase+touchDown);
+  // tstatus = touchPoint(touch6, false);
+  // addObservationRos(touch6);
+  // // addObservation(pfilter, tstatus.touchPose, tstatus.touched);
+  // // moveNearPlane(pfilter, 0.01);
+  // TLU::userInput("Move after 6 observations");
+
+  // Pose touch7 = rotate*(touchBase+touchDown+touchSide);
+  // tstatus = touchPoint(touch7, false);
+  // addObservationRos(touch7);
+  // // addObservation(pfilter, tstatus.touchPose, tstatus.touched);
+  // // moveNearPlane(pfilter, 0.01);
+  // TLU::userInput("Move after 7 observations");
 
 
 }

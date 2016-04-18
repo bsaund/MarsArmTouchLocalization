@@ -1,6 +1,7 @@
 
 #include <unistd.h>
 #include <ipc/ipc.h>
+#include <cmath>
 #include "Components/Controllers/CoordinatedController/coordinatedController-ipc.h"
 #include "Components/Controllers/CoordinatedController/utils.h"
 #include "Common/commonMath.h"
@@ -99,11 +100,47 @@ void TLU::ipcInit ()
   IPC_subscribeData(CONSTRAINED_MOVE_DONE, constrainedMoveHnd, NULL);
 
 
+  // IPC_defineMsg (NDOF_JOINT_ABS_POS_COMMAND_MSG, IPC_VARIABLE_LENGTH, NDOF_JOINT_FMT);
+
 }
 
 //---------------------------------------------
 //----Useful Functions-------------------------
 //---------------------------------------------
+
+bool TLU::moveToAngles(double jointAngles[7])
+{
+  // Activate arm
+  // Deactivate CC
+  int inactive = 0;
+  int active = 1;
+  IPC_publishData(CC_TOGGLE_EE_ACTIVE_MSG, &inactive);
+  IPC_publishData(CC_TOGGLE_ARM_ACTIVE_MSG, &active);
+  
+
+
+  // POSE_6DOF_TYPE pose6DOF(pose);
+  // EE_DATA_TYPE eeData(&pose6DOF, NULL);
+  // CC_EECommand eeCmd(CC_EE_ABSOLUTE, eeData);
+  // // IPC_publishData(CC_EE_CMD, &eeCmd);
+  // // IPC_publishData(NDOF_JOINT_ABS_POS_COMMAND_MSG, &jointAngles);
+  NDofJointData jointAnglesData(7);
+  for(int i=0; i<7; i++){
+    jointAnglesData.data[i] = jointAngles[i];
+  }
+
+  ARM_DATA_TYPE armData(&jointAnglesData, NULL);
+  CC_ArmCommand armCmd(CC_ARM_ABSOLUTE, armData);
+  IPC_publishData(CC_ARM_CMD, &armCmd);
+
+  // Wait to get to desired position
+  do {
+    IPC_listenWait(100);
+    // std::cout << "Angle diff: " << TLU::angleDiff(jointAnglesData, status.jointAngles) << std::endl
+    ;
+  } while (TLU::angleDiff(jointAnglesData, status.jointAngles) > 0.04);
+
+}
 
 bool TLU::moveToPose (Pose pose)
 {
@@ -122,7 +159,7 @@ bool TLU::moveToPose (Pose pose)
   // Wait to get to desired position
   do {
     IPC_listenWait(100);
-    std::cout << "Moving to pose " << std::endl;
+    // std::cout << "Moving to pose " << std::endl;
   } while (TLU::PoseDiff(pose, status.eePose) > 0.01);
 }
 
@@ -286,7 +323,7 @@ void TLU::calibrateForceSensor()
     IPC_publishData(FORCE_RECALIBRATION_MSG, &tmp);
     do {
       IPC_listenWait(100);
-      cerr << "Waiting for calibration" << endl;
+      // cerr << "Waiting for calibration" << endl;
     } while (!status.calibrated);
     cerr << "Force noise: " << status.forceNoise << endl;
 }
@@ -311,8 +348,17 @@ void TLU::updateTouchStats (const Pose &pose, int num,
 }
 
 
-
-
+double TLU::angleDiff(const NDofJointData ang1, const NDofJointData ang2)
+{
+    // status.jointAngles = ccStatus->manipStatus.cur.position[0];
+    double maxDiff = 0;
+    for(int i=0; i<7; i++){
+      // std::cout << "ang1: " << ang1.data[i] << std::endl;
+      // std::cout << "ang2: " << ang2.data[i] << std::endl;
+      maxDiff = std::max(maxDiff, std::abs(ang1.data[i] - ang2.data[i]));
+    }
+    return maxDiff;
+}
 
 /*
  *  L2 norm between the poses

@@ -14,14 +14,25 @@ CC_utils coordinatedControllerTypes
 obj.cppflags = ['-g', '-std=gnu++11']
 
 tac = bld.new_task_gen('cxx', 'cprogram')
-tac.target = 'tactileLocalizeListener'
-tac.source = 'tactileLocalizeListener.cc tactileLocalizationUtils.cc'
+tac.target = 'tactileLocalizeListenerWood'
+tac.source = 'tactileLocalizeListenerWood.cc tactileLocalizationUtils.cc'
 tac.uselib = 'IPC PTHREAD M'
 tac.uselib_local = '''
 commonMatrix common constraint
 CC_utils coordinatedControllerTypes
 '''
 tac.cppflags = ['-g', '-std=gnu++11']
+
+
+tacBox = bld.new_task_gen('cxx', 'cprogram')
+tacBox.target = 'tactileLocalizeListenerBox'
+tacBox.source = 'tactileLocalizeListenerBox.cc tactileLocalizationUtils.cc'
+tacBox.uselib = 'IPC PTHREAD M'
+tacBox.uselib_local = '''
+commonMatrix common constraint
+CC_utils coordinatedControllerTypes
+'''
+tacBox.cppflags = ['-g', '-std=gnu++11']
 
 touchTest = bld.new_task_gen('cxx', 'cprogram')
 touchTest.target = 'touchTesting'

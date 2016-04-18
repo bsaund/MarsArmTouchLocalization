@@ -5,7 +5,7 @@
 namespace TLU{
   // L2 norm between the poses
   double PoseDiff (const Pose &pose1, const Pose &pose2);
-
+  double angleDiff(const NDofJointData ang1, const NDofJointData ang2);
 
   struct Status
   {
@@ -46,6 +46,8 @@ namespace TLU{
   bool moveToRelativePose (Pose relPose);
 
   bool moveToPose (Pose pose);
+
+  bool moveToAngles (double jointAngles[7]);
 
   void calibrateForceSensor();
 
