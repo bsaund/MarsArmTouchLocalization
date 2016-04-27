@@ -26,6 +26,12 @@ typedef struct {
 #define TOUCH_LOCATION_FORM "{double, double, double, double, double, double}"
 #define TOUCH_LOCATION_MSG "TOUCH_LOCATION"
 
+typedef struct {
+  char *processName;
+} ProcessFinished;
+#define PROCESS_FINISHED_FORM "{string}"
+#define PROCESS_FINISHED_MSG "PROCESS_FINISHED_MSG"
+
 
 
 #endif

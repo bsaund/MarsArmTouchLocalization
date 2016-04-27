@@ -24,6 +24,13 @@ static void addObservationRos(Pose pose)
   IPC_publishData(TOUCH_OBSERVATION_MSG, &obsMsg);
 }
 
+static void sendMoveFinished(char *processName)
+{
+  ProcessFinished pMsg = {processName};
+  cout << "Move Finished: " << processName << endl;
+  IPC_publishData(PROCESS_FINISHED_MSG, &pMsg);
+}
+
 
 static TLU::TouchStatus touchPoint(Pose startPose, bool calibrate)
 {
@@ -228,12 +235,15 @@ int main ()
     prepareEE(touchPose);
 
     tstatus = touchPoint(touchPose, calibrate);
+    addObservationRos(tstatus.touchPose);
 
     returnEE(touchPose);
 
-    calibrate = true;  //Calibrate every time because we are changing poses
-    addObservationRos(tstatus.touchPose);
+    sendMoveFinished("movement");
 
+    calibrate = true;  //Calibrate every time because we are changing poses
+
+    
   }
 
   return 1;
