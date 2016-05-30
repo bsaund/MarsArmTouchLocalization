@@ -7,6 +7,10 @@ namespace TLU{
   double PoseDiff (const Pose &pose1, const Pose &pose2);
   double angleDiff(const NDofJointData ang1, const NDofJointData ang2);
 
+  /* int fd; */
+  /* char *portNames; */
+
+
   struct Status
   {
     Status () : calibrated(false), moveDone(false), touched(false) {}
@@ -39,6 +43,8 @@ namespace TLU{
   TouchStatus touchPoint (Pose startPose, double forwardMove, bool calibrate, 
 			  double touchVelocity, bool doubleTouch);
 
+  TouchStatus measurePoint();
+
   TouchStatus probeForward(double maxDist, double speed);
 
   bool guardedMoveToPose (Pose pose);
@@ -52,6 +58,10 @@ namespace TLU{
   void calibrateForceSensor();
 
   void userInput(const char *msg);
+
+  double readDistanceProbe();
+
+
 }
 
 

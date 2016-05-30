@@ -37,6 +37,12 @@ static TLU::TouchStatus touchPoint(Pose startPose, bool calibrate)
   return TLU::touchPoint(startPose, 0.1, calibrate, 0.01, true);
 }
 
+static TLU::TouchStatus measurePoint(Pose startPose)
+{
+  TLU::moveToPose(startPose);
+  return TLU::measurePoint();
+}
+
 static bool newPose;
 static Pose touchPose;
 
@@ -209,6 +215,18 @@ int main ()
   newPose = false;
   bool calibrate = true;
 
+  TLU::TouchStatus mstatus;
+
+  // moveToStartPose();
+  // for(int i=1; i<100; i++){
+  //   sleep(1);
+  //   // double dist = TLU::readDistanceProbe();
+  //   mstatus = measurePoint(touchPose);
+  //   std::cout << mstatus.touchPose << std::endl;
+  // }
+  // return 1;
+
+
 
   moveToStartPose();
   // moveTopToSide();
@@ -227,15 +245,17 @@ int main ()
       // cerr << "Waiting for Command" << endl;
     } while (!newPose);
     newPose = false;
-    TLU::TouchStatus tstatus;
+    // TLU::TouchStatus tstatus;
+    TLU::TouchStatus mstatus;
 
     // GoalFaces face;
     // checkFace(touchPose, face);
 
     prepareEE(touchPose);
 
-    tstatus = touchPoint(touchPose, calibrate);
-    addObservationRos(tstatus.touchPose);
+    // tstatus = touchPoint(touchPose, calibrate);
+    mstatus = measurePoint(touchPose);
+    addObservationRos(mstatus.touchPose);
 
     returnEE(touchPose);
 

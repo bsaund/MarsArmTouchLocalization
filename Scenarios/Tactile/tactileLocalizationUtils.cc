@@ -11,7 +11,14 @@
 #include "tactileLocalizationUtils.h"
 #include "tactileLocalizeMsg.h"
 
+// #include <sys/types.h>
+// #include <sys/stat.h>
+#include <fcntl.h>
+#include <termios.h>
+
 static TLU::Status status;
+static const char *portName = "/dev/ttyACM1";
+static int fd = -1;
 
 //---------------------------------------------
 //---Message Handlers from controller----------
@@ -28,9 +35,13 @@ static void forceSensorNoiseHnd (MSG_INSTANCE msg, void *callData,
   IPC_freeData (IPC_msgInstanceFormatter(msg), callData);
 }
 
+
+
 static void statusHnd(MSG_INSTANCE msg, void *callData, void* clientData)
 {
   CoordinatedControllerStatus* ccStatus = (CoordinatedControllerStatus *)callData;
+
+  // std::cout <<"Status Handled" << std::endl;
 
   if (ccStatus->eeStatus.cur.poseLen > 0)
     status.eePose = ccStatus->eeStatus.cur.pose[0];
@@ -79,6 +90,33 @@ static void constrainedMoveHnd (MSG_INSTANCE msg, void *callData,
   IPC_freeData (IPC_msgInstanceFormatter(msg), callData);
 }
 
+static void configure_port (int fd)
+{
+  struct termios settings;
+
+  cfsetispeed(&settings, B57600);
+  cfsetospeed(&settings, B57600);
+  settings.c_cflag &= ~PARENB; // no parity
+  settings.c_cflag &= ~CSTOPB; // one stop bit
+  settings.c_cflag &= ~CSIZE;  // 8 bit size
+  settings.c_cflag |= CS8;
+
+  tcsetattr(fd, TCSANOW, &settings);
+}
+
+static int open_port (const char *port)
+{
+  int fd = open(port, O_RDONLY | O_NOCTTY | O_NDELAY);
+
+  if (fd == -1) {
+    cout << "Unable to open " << port << endl;
+  } else {
+    fcntl(fd, F_SETFL, 0);
+    cout << "Port " << port << " is open" << endl;
+    configure_port(fd);
+  }
+  return fd;
+}
 
 
 
@@ -102,12 +140,54 @@ void TLU::ipcInit ()
 
 
   // IPC_defineMsg (NDOF_JOINT_ABS_POS_COMMAND_MSG, IPC_VARIABLE_LENGTH, NDOF_JOINT_FMT);
+  usleep(10000); // For some reason, need to delay first
+  tcflush(fd, TCIOFLUSH);
+
+  fd = open_port(portName);
 
 }
 
 //---------------------------------------------
 //----Useful Functions-------------------------
 //---------------------------------------------
+
+double TLU::readDistanceProbe(){
+  tcflush(fd, TCIOFLUSH);
+  sleep(2);
+  tcflush(fd, TCIOFLUSH);
+
+  char buffer[80];
+  bzero(buffer, sizeof(buffer));
+  for (int i=0; i<80;) {
+    int retval = ::read(fd, &buffer[i], 1);
+    if (retval == -1)
+      perror("read");
+    else if (retval == 1) {
+
+      // Serial output ends with ^M/CR
+      if (buffer[i] == '\n') {
+	//std::cout << "backslash n" << std::endl;
+	break;
+      }
+      if (buffer[i] != '\n') i++;
+    }
+  }
+
+  // std::cout <<buffer <<std::endl;
+  double ambiant;
+  double distance;
+
+  sscanf(buffer, "Range: %lf \n", &distance);
+
+  std::cout << "Distance is: " << distance << std::endl;
+
+  if(distance == 0){
+    std::cout << "Buffer: " << buffer << std::endl;
+  }
+    
+  return distance;
+}
+
 
 bool TLU::moveToAngles(double jointAngles[7])
 {
@@ -257,6 +337,24 @@ TLU::TouchStatus TLU::touchPoint (Pose startPose, double forwardMove, bool calib
   cerr << "Return to start pose from: " << status.eePose << endl;
   moveToPose(startPose);
   return touchStatus;
+}
+
+/*
+ * Measures the object using the ranged distance sensor
+ */
+TLU::TouchStatus TLU::measurePoint()
+{
+  IPC_listenWait(100);
+  TLU::TouchStatus measureStatus;
+  double dist = readDistanceProbe();
+
+  measureStatus.touched = dist < 250;
+  std::cout << "Status: " << status.eePose << std::endl;
+  std::cout << status.eeGoalPose << std::endl;
+  // std::cout << status.jointAngles.data[0] << std::endl;
+  measureStatus.touchPose = status.eePose * Pose(0,0,dist/1000,0,0,0);
+  // touchStatus.touchPose = status.eeEndPose;
+  return measureStatus;
 }
 
 /*
