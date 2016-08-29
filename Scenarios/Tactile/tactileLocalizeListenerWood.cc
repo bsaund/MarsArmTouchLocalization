@@ -51,11 +51,11 @@ static void touchHnd(MSG_INSTANCE msg, void *callData,
 {
   TouchLocation* l = (TouchLocation *)callData;
   Pose startPose(l->x, l->y, l->z, l->r, l->p, l->yaw);
-  std::cout << "xyz: " << l->x << ", " << l->y << ", " << l->z << std::endl;
-  std::cout << "rpy: " << l->r << ", " << l->p << ", " << l->yaw << std::endl;
+  // std::cout << "xyz: " << l->x << ", " << l->y << ", " << l->z << std::endl;
+  // std::cout << "rpy: " << l->r << ", " << l->p << ", " << l->yaw << std::endl;
   // touchPoint(startPose, true);
   touchPose = startPose;
-  std::cout << "Freeing data" << std::endl;
+  // std::cout << "Freeing data" << std::endl;
   newPose = true;
   IPC_freeData (IPC_msgInstanceFormatter(msg), callData);
 }
@@ -80,7 +80,7 @@ static void moveTopToFront()
   double midAngles[7] = {.25, -.93, 0, 2.26, -2.37, 1.45, 0};
   TLU::moveToAngles(midAngles);
 
-  TLU::moveToPose(Pose(0.913, -0.128, 0.706, -1.264, -1.396, -2.389));
+  TLU::moveToPose(Pose(0.863, -0.128, 0.706, -1.264, -1.396, -2.389));
   TLU::moveToPose(Pose(0.812, -0.050, 0.391, -1.468, -1.396, -2.104));
 
   
@@ -89,7 +89,7 @@ static void moveTopToFront()
 static void moveFrontToTop()
 {
   TLU::moveToPose(Pose(0.812, -0.050, 0.391, -1.468, -1.396, -2.104));
-  TLU::moveToPose(Pose(0.913, -0.128, 0.706, -1.264, -1.396, -2.389));
+  TLU::moveToPose(Pose(0.863, -0.128, 0.706, -1.264, -1.396, -2.389));
   double midAngles[7] = {.25, -.93, 0, 2.26, -2.37, 1.45, 0};
   TLU::moveToAngles(midAngles);
   
@@ -146,29 +146,29 @@ static void moveSideToTop()
 }
 
 static void checkFace(Pose pose, GoalFaces &face){
-  std::cout << "Pose x, y ,z: " << pose.x() << ", " << pose.y();
-  std::cout << ", " << pose.z() << ", " << std::endl;
-  std::cout << "Pose rx, ry ,rz: " << pose.rx() << ", " << pose.ry();
-  std::cout << ", " << pose.rz() << ", " << std::endl;
-
+  // std::cout << "Pose x, y ,z: " << pose.x() << ", " << pose.y();
+  // std::cout << ", " << pose.z() << ", " << std::endl;
+  // std::cout << "Pose rx, ry ,rz: " << pose.rx() << ", " << pose.ry();
+  // std::cout << ", " << pose.rz() << ", " << std::endl;
+  // std::cout << "Next measurement is on ";
   if(std::abs(pose.rx()) > 3){
-    std::cout << "Top Face" << std::endl;
+    // std::cout << "Top Face" << std::endl;
     face = top;
     return;
   }
 
   if(pose.rz() < -1.4){
-    std::cout << "Front Face" << std::endl;
+    // std::cout << "Front Face" << std::endl;
     face = front;
     return;
   }
   if(pose.y() < -.4){
-    std::cout << "Front Right Face" << std::endl;
+    // std::cout << "Front Right Face" << std::endl;
     face = frontRight;
     return;
   }
 
-  std::cout << "Side Face" << std::endl;
+  // std::cout << "Side Face" << std::endl;
   face = side;
 }
 
@@ -240,9 +240,14 @@ int main ()
   
   while(true){
 
+    int i = 0;
     do {
       IPC_listenWait(100);
-      // cerr << "Waiting for Command" << endl;
+      i++;
+      if(i > 100){
+	cerr << "Waiting for Command..." << endl;
+	i = 0;
+      }
     } while (!newPose);
     newPose = false;
     // TLU::TouchStatus tstatus;

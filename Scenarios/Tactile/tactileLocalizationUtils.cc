@@ -349,8 +349,8 @@ TLU::TouchStatus TLU::measurePoint()
   double dist = readDistanceProbe();
 
   measureStatus.touched = dist < 250;
-  std::cout << "Status: " << status.eePose << std::endl;
-  std::cout << status.eeGoalPose << std::endl;
+  // std::cout << "Status: " << status.eePose << std::endl;
+  // std::cout << status.eeGoalPose << std::endl;
   // std::cout << status.jointAngles.data[0] << std::endl;
   measureStatus.touchPose = status.eePose * Pose(0,0,dist/1000,0,0,0);
   // touchStatus.touchPose = status.eeEndPose;
