@@ -258,8 +258,12 @@ int main ()
 
     prepareEE(touchPose);
 
-    // tstatus = touchPoint(touchPose, calibrate);
+    //Change these to switch between Arduino Range Sensor
+    //And JR3 Arduino touch sensor
+    // mstatus = touchPoint(touchPose, calibrate);
     mstatus = measurePoint(touchPose);
+    ROS_INFO("Touched point at %f, %f, %f", mstatus.touchPose[0], 
+	     mstatus.touchPose[1], mstatus.touchPose[2]);
     addObservationRos(mstatus.touchPose);
 
     returnEE(touchPose);
