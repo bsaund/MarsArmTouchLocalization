@@ -6,3 +6,5 @@ Note: The kinematics config file does not appear to be working. This should be d
 boeing/software/src/Components/Controllers/CoordinatedController/arm/
 config_TRACLABS.cc 
 to change the dh parameters
+
+Modify this in reids directory, then copy to bsaund
