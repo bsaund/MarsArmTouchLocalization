@@ -12,6 +12,7 @@
 #include <ipc/ipc.h>
 #include "tactileLocalizationUtils.h"
 #include "tactileLocalizeMsg.h"
+#include "moveAroundPart.h"
 
 enum GoalFaces {top, front, frontRight, side};
 
@@ -60,90 +61,6 @@ static void touchHnd(MSG_INSTANCE msg, void *callData,
   IPC_freeData (IPC_msgInstanceFormatter(msg), callData);
 }
 
-static void moveToStartPose()
-{
-
-  std::cout << "Moving to Safe Pose" << std::endl;
-  double topAngles[7] = {0, -.785, 0, .785, 0, 1.57, 0};
-  TLU::moveToAngles(topAngles);
-
-
-
-}
-
-static void moveTopToFront()
-{
-  std::cout << "Moving to: Front Face" << std::endl;
-  moveToStartPose();
-
-
-  double midAngles[7] = {.25, -.93, 0, 2.26, -2.37, 1.45, 0};
-  TLU::moveToAngles(midAngles);
-
-  TLU::moveToPose(Pose(0.863, -0.128, 0.706, -1.264, -1.396, -2.389));
-  TLU::moveToPose(Pose(0.812, -0.050, 0.391, -1.468, -1.396, -2.104));
-
-  
-}
-
-static void moveFrontToTop()
-{
-  TLU::moveToPose(Pose(0.812, -0.050, 0.391, -1.468, -1.396, -2.104));
-  TLU::moveToPose(Pose(0.863, -0.128, 0.706, -1.264, -1.396, -2.389));
-  double midAngles[7] = {.25, -.93, 0, 2.26, -2.37, 1.45, 0};
-  TLU::moveToAngles(midAngles);
-  
-  moveToStartPose();
-}
-
-static void moveTopToFrontRight()
-{
-  std::cout << "Moving to: Front Face" << std::endl;
-  moveToStartPose();
-
-
-  double midAngles[7] = {-1.5, -.44, 0, 2, 2, 1.6, 0};
-  TLU::moveToAngles(midAngles);
-
-  TLU::moveToPose(Pose(.577, -.611, .534, .283, -1.536, 2.5));
-  TLU::moveToPose(Pose(.577, -.611, .347, .398, -1.532, 2.387));
-
-  
-}
-
-static void moveFrontRightToTop()
-{
-  TLU::moveToPose(Pose(.577, -.611, .347, .398, -1.532, 2.387));
-  TLU::moveToPose(Pose(.577, -.611, .534, .283, -1.536, 2.5));
-  double midAngles[7] = {-1.5, -.44, 0, 2, 2, 1.6, 0};
-  TLU::moveToAngles(midAngles);
-  
-  moveToStartPose();
-}
-
-static void moveTopToSide()
-{
-  std::cout << "Moving to: Side Face" << std::endl;
-  moveToStartPose();
-  double midAngles[7] = {-.65, -.78, 0, 2, 1.34, 1.65, 0};
-  TLU::moveToAngles(midAngles);
-  TLU::moveToPose(Pose(.69, .14, .65, 1.58, -1.23, 2.724));
-  TLU::moveToPose(Pose(.71, .13, .4, 1.58, -1.23, 2.724));
-
-}
-
-static void moveSideToTop()
-{
-  std::cout << "Moving from side to top" << std::endl;
-  TLU::moveToPose(Pose(.71, .13, .4, 1.58, -1.23, 2.724));
-  std::cout << "Moving from side to stop stage 2" << std::endl;
-  TLU::moveToPose(Pose(.69, .14, .65, 1.58, -1.23, 2.724));
-
-  double midAngles[7] = {-.65, -.78, 0, 2, 1.34, 1.65, 0};
-  TLU::moveToAngles(midAngles);
-
-  moveToStartPose();
-}
 
 static void checkFace(Pose pose, GoalFaces &face){
   // std::cout << "Pose x, y ,z: " << pose.x() << ", " << pose.y();
@@ -262,8 +179,8 @@ int main ()
     //And JR3 Arduino touch sensor
     // mstatus = touchPoint(touchPose, calibrate);
     mstatus = measurePoint(touchPose);
-    ROS_INFO("Touched point at %f, %f, %f", mstatus.touchPose[0], 
-	     mstatus.touchPose[1], mstatus.touchPose[2]);
+    // ROS_INFO("Touched point at %f, %f, %f", mstatus.touchPose[0], 
+    // 	     mstatus.touchPose[1], mstatus.touchPose[2]);
     addObservationRos(mstatus.touchPose);
 
     returnEE(touchPose);

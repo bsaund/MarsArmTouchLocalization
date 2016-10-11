@@ -5,15 +5,62 @@
  *****************************************************************/
 
 #include <unistd.h>
+#include <cmath>
 #include "Components/Controllers/CoordinatedController/utils.h"
 #include "Common/commonMath.h"
+#include <ipc/ipc.h>
 #include "tactileLocalizationUtils.h"
+#include "tactileLocalizeMsg.h"
+#include "moveAroundPart.h"
+
+static bool newPose;
+static Pose touchPose;
+
+static void touchHnd(MSG_INSTANCE msg, void *callData,
+			    void* clientData)
+{
+  TouchLocation* l = (TouchLocation *)callData;
+  Pose startPose(l->x, l->y, l->z, l->r, l->p, l->yaw);
+  // std::cout << "xyz: " << l->x << ", " << l->y << ", " << l->z << std::endl;
+  // std::cout << "rpy: " << l->r << ", " << l->p << ", " << l->yaw << std::endl;
+  // touchPoint(startPose, true);
+  touchPose = startPose;
+  // std::cout << "Freeing data" << std::endl;
+  newPose = true;
+  IPC_freeData (IPC_msgInstanceFormatter(msg), callData);
+}
+
 
 int main()
 {
   // const int numTrials = 1;
   // double touchDist[numTrials];
   TLU::ipcInit();
+  IPC_subscribeData(TOUCH_LOCATION_MSG, touchHnd, NULL);
+  newPose = false;
+  bool calibrate = true;
+
+  // TLU::TouchStatus mstatus;
+  // TLU::measurePoint();
+
+
+
+  moveToStartPose();
+  moveStartToTop();
+  moveTopToStart();
+  // moveToStartPose();
+
+
+
+
+
+
+
+
+
+
+
+
 
   // Pose rotate(0, 0, 0, 0, 0, M_PI/4);
 
@@ -43,9 +90,9 @@ int main()
   //   cerr << touchDist[i] << endl;
   // }
   //  TLU::guardedMoveToPose(BackOff1);
-  double angles[7] = {1.0,-1.4,0,1.37,0,1.5,0};
+  // double angles[7] = {1.0,-1.4,0,1.37,0,1.5,0};
   // double angles[7] = {0, -1.57, 0, 0 ,0 ,0 ,0};
-  TLU::moveToAngles(angles);
+  // TLU::moveToAngles(angles);
   
 
   // TLU::moveToPose(Pose(.4, .4, .7, M_PI, 0, 0));
