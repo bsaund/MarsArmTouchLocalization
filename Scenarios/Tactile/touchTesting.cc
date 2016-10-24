@@ -11,7 +11,7 @@
 #include <ipc/ipc.h>
 #include "tactileLocalizationUtils.h"
 #include "tactileLocalizeMsg.h"
-#include "moveAroundPart.h"
+#include "moveAroundRealPart.h"
 
 static bool newPose;
 static Pose touchPose;
@@ -44,18 +44,17 @@ int main()
   // TLU::measurePoint();
 
 
+  while(true){
+    TLU::TouchStatus m = TLU::measurePoint();
+    std::cout << "touched at: " << m.touchPose.x() << ", ";
+    std::cout << m.touchPose.y() << ", ";
+    std::cout << m.touchPose.z() << "\n";
+  }
+  
 
   moveToStartPose();
-  moveStartToTop();
-  moveTopToStart();
-  // moveToStartPose();
-
-
-
-
-
-
-
+  moveStartToBottom();
+  moveBottomToStart();
 
 
 

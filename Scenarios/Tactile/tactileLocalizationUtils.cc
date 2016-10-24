@@ -10,6 +10,8 @@
 #include "Common/ConstrainedMoveMessages.h"
 #include "tactileLocalizationUtils.h"
 #include "tactileLocalizeMsg.h"
+#include <sstream>
+#include <string>
 
 // #include <sys/types.h>
 // #include <sys/stat.h>
@@ -153,8 +155,10 @@ void TLU::ipcInit ()
 
 double TLU::readDistanceProbe(){
   tcflush(fd, TCIOFLUSH);
-  sleep(2);
-  tcflush(fd, TCIOFLUSH);
+  // sleep(2);
+  // tcflush(fd, TCIOFLUSH);
+
+
 
   char buffer[80];
   bzero(buffer, sizeof(buffer));
@@ -165,24 +169,33 @@ double TLU::readDistanceProbe(){
     else if (retval == 1) {
 
       // Serial output ends with ^M/CR
-      if (buffer[i] == '\n') {
-	//std::cout << "backslash n" << std::endl;
-	break;
-      }
-      if (buffer[i] != '\n') i++;
+      // if (buffer[i] == '\n') {
+      // 	//std::cout << "backslash n" << std::endl;
+      // 	break;
+      // }
+      // if(buffer[i] == '\n')
+      // 	buffer[i] = ' ';
+
+      if(buffer[0] == 'R')
+	i++;
+
+      // if (buffer[i] != '\n') i++;
+
     }
   }
+  
 
   // std::cout <<buffer <<std::endl;
   double ambiant;
-  double distance;
+  double distance = 0;
 
-  sscanf(buffer, "Range: %lf \n", &distance);
+  sscanf(buffer, "Range: %lf ", &distance);
+  int tmp = 0;
 
   std::cout << "Distance is: " << distance << std::endl;
 
   if(distance == 0){
-    std::cout << "Buffer: " << buffer << std::endl;
+    std::cout << "Buffer:\n " << buffer << std::endl;
   }
     
   return distance;
@@ -352,7 +365,12 @@ TLU::TouchStatus TLU::measurePoint()
   // std::cout << "Status: " << status.eePose << std::endl;
   // std::cout << status.eeGoalPose << std::endl;
   // std::cout << status.jointAngles.data[0] << std::endl;
-  measureStatus.touchPose = status.eePose * Pose(0,0,dist/1000,0,0,0);
+
+  //Add the distance measurement to the current tool tip
+  //Range Finder is pointed in the "z" direction
+  //There is a 3.8cm offset from teh tool tip position to the start of the range finder
+  measureStatus.touchPose = status.eePose * Pose(0,0,-dist/1000 -0.038,0,0,0);
+  
   // touchStatus.touchPose = status.eeEndPose;
   return measureStatus;
 }
