@@ -12,9 +12,9 @@
 #include <ipc/ipc.h>
 #include "tactileLocalizationUtils.h"
 #include "tactileLocalizeMsg.h"
-#include "moveAroundPart.h"
+#include "moveAroundRealPart.h"
 
-enum GoalFaces {top, front, frontRight, side};
+enum GoalFaces {top, front, frontRight, side, bottom};
 
 static void addObservationRos(Pose pose)
 {
@@ -68,25 +68,31 @@ static void checkFace(Pose pose, GoalFaces &face){
   // std::cout << "Pose rx, ry ,rz: " << pose.rx() << ", " << pose.ry();
   // std::cout << ", " << pose.rz() << ", " << std::endl;
   // std::cout << "Next measurement is on ";
-  if(std::abs(pose.rx()) > 3){
-    // std::cout << "Top Face" << std::endl;
-    face = top;
-    return;
-  }
+  Pose R(0,0,0,pose.rx(), pose.ry(), pose.rz());
+  Pose z(0,0,1,0,0,0);
+  Pose Rz = R*z;
+  
 
-  if(pose.rz() < -1.4){
-    // std::cout << "Front Face" << std::endl;
+  if(Rz.x() < -.8){
+    std::cout << "Front Face\n" << std::endl;
     face = front;
     return;
   }
-  if(pose.y() < -.4){
-    // std::cout << "Front Right Face" << std::endl;
-    face = frontRight;
+
+  if(Rz.y() < -.8){
+    std::cout << "Side Face\n" << std::endl;
+    face = side;
     return;
   }
-
+  if(pose.z() < -.8){
+    std::cout << "Bottom Face\n" << std::endl;
+    face = bottom;
+    return;
+  }
+  
+  std::cout << "UNKNOWN FACE!!!!\n";
   // std::cout << "Side Face" << std::endl;
-  face = side;
+  // face = side;
 }
 
 static void prepareEE(Pose pose)
@@ -94,14 +100,14 @@ static void prepareEE(Pose pose)
   GoalFaces face;
   checkFace(touchPose, face);
   switch(face){
-  case front:
-    moveTopToFront();
+  case bottom:
+    moveStartToBottom();
     break;
-  case frontRight:
-    moveTopToFrontRight();
-    break;
+  // case frontRight:
+  //   moveTopToFrontRight();
+  //   break;
   case side:
-    moveTopToSide();
+    moveStartToSide();
     break;
   }
 }
@@ -111,14 +117,17 @@ static void returnEE(Pose pose)
   GoalFaces face;
   checkFace(touchPose, face);
   switch(face){
-  case front:
-    moveFrontToTop();
-    break;
-  case frontRight:
-    moveFrontRightToTop();
-    break;
+  // case front:
+  //   moveFrontToTop();
+  //   break;
+  // case frontRight:
+  //   moveFrontRightToTop();
+  //   break;
   case side:
-    moveSideToTop();
+    moveSideToStart();
+    break;
+  case bottom:
+    moveBottomToStart();
     break;
   }
 }

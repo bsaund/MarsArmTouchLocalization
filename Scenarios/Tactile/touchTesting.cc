@@ -44,17 +44,19 @@ int main()
   // TLU::measurePoint();
 
 
-  while(true){
-    TLU::TouchStatus m = TLU::measurePoint();
-    std::cout << "touched at: " << m.touchPose.x() << ", ";
-    std::cout << m.touchPose.y() << ", ";
-    std::cout << m.touchPose.z() << "\n";
-  }
+  // while(true){
+  //   TLU::TouchStatus m = TLU::measurePoint();
+  //   std::cout << "touched at: " << m.touchPose.x() << ", ";
+  //   std::cout << m.touchPose.y() << ", ";
+  //   std::cout << m.touchPose.z() << "\n";
+  // }
   
 
   moveToStartPose();
   moveStartToBottom();
   moveBottomToStart();
+  // moveStartToSide();
+  // moveSideToStart();
 
 
 
