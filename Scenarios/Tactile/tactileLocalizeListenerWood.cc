@@ -71,7 +71,9 @@ static void checkFace(Pose pose, GoalFaces &face){
   Pose R(0,0,0,pose.rx(), pose.ry(), pose.rz());
   Pose z(0,0,1,0,0,0);
   Pose Rz = R*z;
-  
+
+  std::cout << "Rz x,y,z: " << Rz.x() << ", " << Rz.y() << ", " << Rz.z() << "\n";
+  std::cout << "Rz rx,ry,rz: " << Rz.rx() << ", " << Rz.ry() << ", " << Rz.rz() << "\n";
 
   if(Rz.x() < -.8){
     std::cout << "Front Face\n" << std::endl;
@@ -84,13 +86,14 @@ static void checkFace(Pose pose, GoalFaces &face){
     face = side;
     return;
   }
-  if(pose.z() < -.8){
+  if(Rz.z() < -.8){
     std::cout << "Bottom Face\n" << std::endl;
     face = bottom;
     return;
   }
   
   std::cout << "UNKNOWN FACE!!!!\n";
+  
   // std::cout << "Side Face" << std::endl;
   // face = side;
 }

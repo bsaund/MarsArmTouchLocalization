@@ -54,7 +54,7 @@ int main()
 
   moveToStartPose();
   moveStartToBottom();
-  moveBottomToStart();
+  // moveBottomToStart();
   // moveStartToSide();
   // moveSideToStart();
 

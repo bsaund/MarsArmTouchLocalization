@@ -22,12 +22,12 @@ static void moveStartToBottom()
   double midAngles[7] = {-1, -.13, .5, 1.4, 1, 1.3, 2.8};
   TLU::moveToAngles(midAngles);
 
-  TLU::moveToPose(Pose(.72, -.09, .5, -3, 0, -.5));
+  TLU::moveToPose(Pose(.72, -.09, .40, -3.14, 0, -.8));
 }
 
 static void moveBottomToStart()
 {
-  TLU::moveToPose(Pose(.72, -.09, .5, -3.14, 0, -.5));
+  TLU::moveToPose(Pose(.72, -.09, .5, -3.14, 0, -.8));
 
   double midAngles[7] = {-1, -.13, .5, 1.4, 1, 1.3, 2.8};
   TLU::moveToAngles(midAngles);
@@ -51,15 +51,23 @@ static void moveSideToStart()
   moveToStartPose();
 }
 
-static void moveFrontRightToTop()
+
+static void moveStartToFront()
 {
-  TLU::moveToPose(Pose(.237, -.336, .36, 1.5708, 0, -2.39));
-  TLU::moveToPose(Pose(.237, -.336, .534, 1.5708, 0, -2.39));
-  double midAngles[7] = {-1.0, -1.06, 0, 1.62, 0, .64, -.78};
+  std::cout << "Moving to: Side Face" << std::endl;
+  moveToStartPose();
+  double midAngles[7] = {0, -.785, 0, 1.3708, 0, .985, -0.784}; 
+
   TLU::moveToAngles(midAngles);
-  
+}
+
+static void moveFrontToStart()
+{
+  double midAngles[7] = {0, -.785, 0, 1.3708, 0, .985, -0.784};
+  TLU::moveToAngles(midAngles);
   moveToStartPose();
 }
+
 
 
 #endif

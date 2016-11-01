@@ -159,6 +159,7 @@ double TLU::readDistanceProbe(){
   // tcflush(fd, TCIOFLUSH);
 
 
+  int failedReads = 0;
 
   char buffer[80];
   bzero(buffer, sizeof(buffer));
@@ -178,7 +179,12 @@ double TLU::readDistanceProbe(){
 
       if(buffer[0] == 'R')
 	i++;
+      else
+	failedReads++;
 
+      if(failedReads > 20){
+	std::cout << buffer[0];
+      }
       // if (buffer[i] != '\n') i++;
 
     }
@@ -198,7 +204,8 @@ double TLU::readDistanceProbe(){
     std::cout << "Buffer:\n " << buffer << std::endl;
   }
     
-  return distance;
+  // return distance;
+  return 50; //HARDCODED FOR DEBUGGING
 }
 
 
