@@ -193,7 +193,7 @@ double TLU::readDistanceProbe(){
   std::string str(buffer);
   double distance = 0;
 
-  while(distance < 1 && distance >255){
+  while(distance < 1 || distance >255){
     int rangeInd = str.find("Range:");
     std::cout << rangeInd << "\n";
     
