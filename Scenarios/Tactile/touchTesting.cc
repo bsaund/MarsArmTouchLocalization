@@ -51,9 +51,13 @@ int main()
   //   std::cout << m.touchPose.z() << "\n";
   // }
   
-
-  moveToStartPose();
-  moveStartToBottom();
+  while(true){
+    TLU::measurePoint();
+    moveStartToSide();
+    moveSideToStart();
+  }
+  // moveToStartPose();
+  // moveStartToBottom();
   // moveBottomToStart();
   // moveStartToSide();
   // moveSideToStart();

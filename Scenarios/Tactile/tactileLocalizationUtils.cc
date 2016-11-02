@@ -190,21 +190,33 @@ double TLU::readDistanceProbe(){
     }
   }
   
-
-  // std::cout <<buffer <<std::endl;
-  double ambiant;
+  std::string str(buffer);
   double distance = 0;
 
-  sscanf(buffer, "Range: %lf ", &distance);
-  int tmp = 0;
+  while(distance < 1 && distancd >255){
+    int rangeInd = str.find("Range:");
+    std::cout << rangeInd << "\n";
+    
+    // find the first digit:
+    int startPos = rangeInd;
+    for (; startPos < str.size(); ++startPos)
+      if (std::isdigit(str[startPos])) break;
 
-  std::cout << "Distance is: " << distance << std::endl;
+    // cut off the trash:
+    str = str.substr(startPos, str.size() - startPos);
+    
+    // retrieve the value:
+    std::istringstream(str) >> distance;
 
-  if(distance == 0){
-    std::cout << "Buffer:\n " << buffer << std::endl;
+    std::cout << "Distance is: " << distance << std::endl;
+
+    if(distance == 0){
+      std::cout << "!!!!!!!!!!!!!!!!!! 0 distance !!!!!!!!\n";
+      std::cout << "Buffer:\n " << buffer << std::endl;
+    }
   }
     
-  // return distance;
+    // return distance;
   return 50; //HARDCODED FOR DEBUGGING
 }
 
