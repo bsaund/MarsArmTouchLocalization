@@ -163,19 +163,22 @@ void ArmController::setMode(ArmMode mode){
 void ArmController::getControlVels(ColVector &controlVels){
   if(cc->getControlMode() == CC_ARM_ONLY){
     double maxSpeed = 0;
+    double maxAllowableSpeed = 1.0;
     switch(armMode){
       case CC_ARM_MODE_NA: return;
       case CC_ARM_MODE_POSITION:
 	controlVels = positionCmd - currentAngles;
 
+
 	//Cap max velocity
 	for(int i = 0; i < DOF; i++){
 	  maxSpeed = max(maxSpeed, ABS(controlVels[i]));
+	  // cout << "max speed:" << maxSpeed << "\n";
 	}
-	if(maxSpeed > 1.0){
+	if(maxSpeed > maxAllowableSpeed){
 	  cout<<"Capping control vels\n";
 	  for(int i = 0; i < DOF; i++){
-	    controlVels[i] = 1.0*controlVels[i]/maxSpeed;
+	    controlVels[i] = maxAllowableSpeed*controlVels[i]/maxSpeed;
 	  }
 	}
 
